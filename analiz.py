@@ -1,4 +1,8 @@
 import os
+import numpy as np
+import pandas as pd
+from f1score import calculate_f1_score
+from search import detect_patterns
 
 # Загрузка всех данных
 data_files = [f for f in os.listdir("data") if f.endswith(".csv")]
