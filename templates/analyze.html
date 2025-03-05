@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты анализа</title>
+</head>
+<body>
+    <h1>Результаты анализа</h1>
+    <img src="data:image/png;base64,{{ plot_url }}" alt="График давления">
+    <h2>Интервалы КВД:</h2>
+    <ul>
+        {% for interval in recovery_intervals %}
+        <li>{{ interval }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Интервалы КПД:</h2>
+    <ul>
+        {% for interval in drop_intervals %}
+        <li>{{ interval }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
