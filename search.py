@@ -168,12 +168,12 @@ def detect_patterns(data, window_size=10, threshold=5.0, min_points=20, noise_th
     return recovery_intervals, drop_intervals
 
 # Загрузка данных
-data = pd.read_csv("well_data.csv")
+data = pd.read_csv("data/well_data.csv")
 recovery, drop = detect_patterns(data)
 
 # Сохранение в CSV
 result = pd.DataFrame({
-    "file": ["well_data.csv"],
+    "file": ["data/well_data.csv"],
     "recovery": [recovery],
     "drop": [drop]
 })
