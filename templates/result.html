@@ -3,25 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>Результаты обработки</title>
+    <!-- Подключение Bootstrap для оформления -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .interval-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .interval-list li {
+            background-color: #e9ecef;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Результаты обработки данных</h1>
-    <img src="data:image/png;base64,{{ plot_url }}" alt="Plot">
-
-    <h2>Интервалы КВД:</h2>
-    <ul>
-        {% for interval in recovery %}
-        <li>{{ interval }}</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Интервалы КПД:</h2>
-    <ul>
-        {% for interval in drop %}
-        <li>{{ interval }}</li>
-        {% endfor %}
-    </ul>
-
-    <a href="{{ url_for('index') }}">Загрузить другой файл</a>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Результаты обработки данных</h1>
+        <div class="card mb-4">
+            <div class="card-body">
+                <img src="data:image/png;base64,{{ plot_url }}" class="img-fluid" alt="График давления">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Интервалы КВД:</h2>
+                {% if recovery %}
+                <ul class="interval-list">
+                    {% for interval in recovery %}
+                    <li>{{ interval }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Интервалы не обнаружены.</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h2>Интервалы КПД:</h2>
+                {% if drop %}
+                <ul class="interval-list">
+                    {% for interval in drop %}
+                    <li>{{ interval }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Интервалы не обнаружены.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Загрузить другой файл</a>
+        </div>
+    </div>
 </body>
 </html>
+

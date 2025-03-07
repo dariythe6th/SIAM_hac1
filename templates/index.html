@@ -3,12 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Загрузка CSV файла</title>
+    <!-- Подключение Bootstrap для красивого оформления -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<body>
-    <h1>Загрузите CSV файл с данными</h1>
-    <form action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".csv">
-        <input type="submit" value="Загрузить">
-    </form>
+<body class="bg-light">
+    <div class="container">
+        <h1 class="mt-5 mb-4 text-center">Загрузка CSV файла</h1>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form action="/" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Выберите CSV файл с данными</label>
+                        <input type="file" class="form-control-file" id="file" name="file" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Загрузить и обработать</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
