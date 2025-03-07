@@ -1,6 +1,7 @@
-# Формирование финального CSV-файла
-final_submission = []
+import pandas as pd
+from fin_rez import final_results
 
+final_submission = []
 for result in final_results:
     final_submission.append({
         "file": result["file"],

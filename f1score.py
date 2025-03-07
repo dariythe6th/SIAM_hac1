@@ -1,10 +1,21 @@
 import numpy as np
 from sklearn.metrics import f1_score
-import pandas as pd  # Добавьте импорт pandas
+import pandas as pd
 
 
 def calculate_f1_score(true_intervals, pred_intervals, data, time_tolerance=0.08333):
-    # Преобразуем интервалы в бинарные метки
+    """
+    Вычисляет F1-score для обнаружения интервалов, переводя интервалы в бинарные метки.
+
+    Аргументы:
+      true_intervals: Список истинных интервалов, например, [[начало, конец], ...].
+      pred_intervals: Список предсказанных интервалов.
+      data: DataFrame с колонкой 'Время (часы)', по которому создаются бинарные метки.
+      time_tolerance: Допустимое отклонение при расширении интервалов (в часах).
+
+    Возвращает:
+      F1-score, рассчитанный с использованием sklearn.metrics.f1_score.
+    """
     true_labels = np.zeros(len(data))
     pred_labels = np.zeros(len(data))
 
@@ -22,19 +33,17 @@ def calculate_f1_score(true_intervals, pred_intervals, data, time_tolerance=0.08
 
 
 if __name__ == "__main__":
-    # Пример данных
+    # Пример использования
     data = pd.DataFrame({
         "Время (часы)": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         "Давление (атм)": [100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150]
     })
 
-    # Пример интервалов
-    true_recovery = [[1, 3]]  # Пример эталонных интервалов
+    true_recovery = [[1, 3]]
     true_drop = [[5, 7]]
-    recovery_intervals = [[1, 3]]  # Пример предсказанных интервалов
-    drop_intervals = [[5, 7]]  # Пример предсказанных интервалов
+    recovery_intervals = [[1, 3]]
+    drop_intervals = [[5, 7]]
 
-    # Оценка качества
     f1_recovery = calculate_f1_score(true_recovery, recovery_intervals, data)
     f1_drop = calculate_f1_score(true_drop, drop_intervals, data)
 

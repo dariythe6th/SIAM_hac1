@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты обработки</title>
+</head>
+<body>
+    <h1>Результаты обработки данных</h1>
+    <img src="data:image/png;base64,{{ plot_url }}" alt="Plot">
+
+    <h2>Интервалы КВД:</h2>
+    <ul>
+        {% for interval in recovery %}
+        <li>{{ interval }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Интервалы КПД:</h2>
+    <ul>
+        {% for interval in drop %}
+        <li>{{ interval }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('index') }}">Загрузить другой файл</a>
+</body>
+</html>
