@@ -59,20 +59,18 @@ def detect_patterns(data: pd.DataFrame,
     pressure = data["Давление (атм)"].values
     time = data["Время (часы)"].values
 
-    # Проверка: window_size должен быть нечетным и меньше размера данных
     if window_size % 2 == 0:
         raise ValueError("Размер окна должен быть нечетным для фильтра Савицкого–Голея.")
     if window_size > len(data):
         raise ValueError("Размер окна больше, чем количество точек данных.")
 
-    # Сглаживание данных
     pressure_smoothed = savgol_filter(pressure, window_size, config.POLYORDER)
     derivative = np.gradient(pressure_smoothed)
 
     recovery_intervals = []
     drop_intervals = []
 
-    # Обнаружение пиков (интервалы КВД: рост давления)
+    # Обнаружение пиков (КВД: рост давления)
     peaks = np.where(derivative > threshold)[0]
     for peak in peaks:
         start = max(0, peak - config.PEAK_OFFSET)
@@ -81,12 +79,11 @@ def detect_patterns(data: pd.DataFrame,
             if check_point_density(data, start, end, min_points) and not check_for_noise(data, start, end, noise_threshold):
                 recovery_intervals.append([time[start], time[end]])
 
-    # Обнаружение впадин (интервалы КПД: падение давления)
+    # Обнаружение впадин (КПД: падение давления) с фиксированной длительностью
     valleys = np.where(derivative < -threshold)[0]
     for valley in valleys:
         start = max(0, valley - config.PEAK_OFFSET)
-        # Рассчитываем длительность интервала с увеличением на 10%
-        end = start + int(1.1 * (valley - start))
+        end = start + config.DROP_DURATION_POINTS  # Используем фиксированную длительность для КПД
         if end < len(data):
             if check_point_density(data, start, end, min_points) and not check_for_noise(data, start, end, noise_threshold):
                 drop_intervals.append([time[start], time[end]])
@@ -94,11 +91,11 @@ def detect_patterns(data: pd.DataFrame,
     recovery_intervals = filter_intervals(recovery_intervals, min_recovery_duration)
     drop_intervals = filter_intervals(drop_intervals, min_drop_duration)
 
-    # При низкой дискретизации расширяем интервалы
     total_duration = time[-1] - time[0]
     if len(data) / total_duration < low_density_threshold:
         recovery_intervals = [[start - 0.1, end + 0.1] for start, end in recovery_intervals]
         drop_intervals = [[start - 0.1, end + 0.1] for start, end in drop_intervals]
 
     return recovery_intervals, drop_intervals
+
 

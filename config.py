@@ -14,7 +14,8 @@ MIN_POINTS: int = 20
 
 # Минимальная длительность интервалов (в часах)
 MIN_RECOVERY_DURATION: float = 4.0
-MIN_DROP_DURATION: float = 6.0
+DROP_DURATION_POINTS: int = 240  # длительность КПД в точках (240 минут = 4 часа)
+MIN_DROP_DURATION: float = 4.0
 
 # Дополнительные параметры
 TIME_TOLERANCE: float = 0.08333  # примерно 5 минут
