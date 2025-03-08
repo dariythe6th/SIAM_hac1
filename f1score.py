@@ -1,16 +1,16 @@
 import numpy as np
-from sklearn.metrics import f1_score
 import pandas as pd
+from sklearn.metrics import f1_score
+import config
 
-
-def calculate_f1_score(true_intervals, pred_intervals, data, time_tolerance=0.08333):
+def calculate_f1_score(true_intervals: list, pred_intervals: list, data: pd.DataFrame, time_tolerance: float = config.TIME_TOLERANCE) -> float:
     """
     Вычисляет F1-score для обнаружения интервалов, переводя интервалы в бинарные метки.
 
     Аргументы:
       true_intervals: Список истинных интервалов, например, [[начало, конец], ...].
       pred_intervals: Список предсказанных интервалов.
-      data: DataFrame с колонкой 'Время (часы)', по которому создаются бинарные метки.
+      data: DataFrame с колонкой 'Время (часы)', по которой создаются бинарные метки.
       time_tolerance: Допустимое отклонение при расширении интервалов (в часах).
 
     Возвращает:
@@ -31,9 +31,10 @@ def calculate_f1_score(true_intervals, pred_intervals, data, time_tolerance=0.08
 
     return f1_score(true_labels, pred_labels)
 
-
 if __name__ == "__main__":
-    # Пример использования
+    import pandas as pd
+
+    # Пример использования функции calculate_f1_score
     data = pd.DataFrame({
         "Время (часы)": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         "Давление (атм)": [100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150]
