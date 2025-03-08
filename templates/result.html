@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Результаты обработки</title>
-   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>Результаты обработки данных</h1>
@@ -15,6 +15,7 @@
             <tr>
                 <th>Время (часы)</th>
                 <th>Давление (атм)</th>
+                <th>Производная (атм/час)</th>
             </tr>
         </thead>
         <tbody>
@@ -22,24 +23,11 @@
             <tr>
                 <td>{{ row["Время (часы)"] }}</td>
                 <td>{{ row["Давление (атм)"] }}</td>
+                <td>{{ row["Производная (атм/час)"] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <h2>Интервалы КВД:</h2>
-    <ul>
-        {% for interval in recovery %}
-        <li>{{ interval }}</li>
-        {% endfor %}
-    </ul>
-
-    <h2>Интервалы КПД:</h2>
-    <ul>
-        {% for interval in drop %}
-        <li>{{ interval }}</li>
-        {% endfor %}
-    </ul>
 
     <a href="{{ url_for('index') }}">Загрузить другой файл</a>
 </body>

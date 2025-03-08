@@ -26,9 +26,6 @@ def load_data(file_path):
     return data
 
 def plot_intervals(data, recovery_intervals, drop_intervals):
-    """
-    Визуализация временных рядов давления и его производной с выделенными интервалами КВД и КПД.
-    """
     plt.figure(figsize=(12, 6))
 
     # Построение давления
@@ -44,18 +41,43 @@ def plot_intervals(data, recovery_intervals, drop_intervals):
 
     # Отображение интервалов КВД
     for idx, interval in enumerate(recovery_intervals):
-        color = recovery_colors[idx % len(recovery_colors)]  # Циклически выбираем цвет
+        color = recovery_colors[idx % len(recovery_colors)]
         plt.axvspan(interval[0], interval[1], color=color, alpha=0.3, label=f"КВД {idx+1}" if idx < 3 else "")
+        # Подпись для КВД
+        plt.text((interval[0] + interval[1]) / 2, max(data["Давление (атм)"]), "КВД",
+                 color=color, fontsize=12, ha='center', va='bottom')
 
     # Отображение интервалов КПД
     for idx, interval in enumerate(drop_intervals):
-        color = drop_colors[idx % len(drop_colors)]  # Циклически выбираем цвет
+        color = drop_colors[idx % len(drop_colors)]
         plt.axvspan(interval[0], interval[1], color=color, alpha=0.3, label=f"КПД {idx+1}" if idx < 3 else "")
+        # Подпись для КПД
+        plt.text((interval[0] + interval[1]) / 2, min(data["Давление (атм)"]), "КПД",
+                 color=color, fontsize=12, ha='center', va='top')
+
+    # Определение и выделение областей
+    time = data["Время (часы)"].values
+    pressure = data["Давление (атм)"].values
+
+    # Область 1: Влияние ствола скважины (ВСС)
+    wb_start = 0
+    wb_end = time[np.argmax(derivative > 1)]  # Примерный конец области ВСС
+    plt.axvspan(wb_start, wb_end, color='gray', alpha=0.2, label="Влияние ствола скважины (ВСС)")
+
+    # Область 2: Работа пласта
+    ra_start = wb_end
+    ra_end = time[np.argmax(derivative < 0.5)]  # Примерный конец области работы пласта
+    plt.axvspan(ra_start, ra_end, color='yellow', alpha=0.2, label="Работа пласта")
+
+    # Область 3: Влияние границ
+    pc_start = ra_end
+    pc_end = time[-1]  # Конец графика
+    plt.axvspan(pc_start, pc_end, color='pink', alpha=0.2, label="Влияние границ")
 
     # Настройка графика
     plt.xlabel("Время (часы)")
     plt.ylabel("Давление (атм) / Производная")
-    plt.title("Выделение интервалов КВД и КПД")
+    plt.title("Выделение интервалов КВД, КПД и областей на графике")
     plt.legend()
     plt.grid()
 
@@ -64,45 +86,40 @@ def plot_intervals(data, recovery_intervals, drop_intervals):
     plt.savefig(img, format='png')
     plt.close()
     img.seek(0)
-    return base64.b64encode(img.getvalue()).decode()
+    plot_url = base64.b64encode(img.getvalue()).decode()
+
+    # Добавляем производную в данные для таблицы
+    data['Производная (атм/час)'] = derivative
+
+    return plot_url, data.to_dict('records')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Если нажата кнопка "Использовать тестовые данные"
         if 'use_test_data' in request.form:
-            # Загружаем тестовые данные из data/well_data.csv
             if os.path.exists(os.path.join("data", "well_data.csv")):
                 data = load_data(os.path.join("data", "well_data.csv"))
                 recovery_intervals, drop_intervals = detect_patterns(data)
-                plot_url = plot_intervals(data, recovery_intervals, drop_intervals)
-                return render_template('result.html', plot_url=plot_url, recovery=recovery_intervals, drop=drop_intervals, data=data.to_dict('records'))
+                plot_url, data_with_derivative = plot_intervals(data, recovery_intervals, drop_intervals)
+                return render_template('result.html', plot_url=plot_url, recovery=recovery_intervals, drop=drop_intervals, data=data_with_derivative)
             else:
                 return "Файл data/well_data.csv не найден!"
 
-        # Если загружен файл
         if 'file' not in request.files:
             return redirect(request.url)
         file = request.files['file']
         if file.filename == '':
             return redirect(request.url)
         if file:
-            # Сохраняем файл
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
 
-            # Загружаем данные
             data = load_data(file_path)
-
-            # Применяем алгоритм для обнаружения интервалов
             recovery_intervals, drop_intervals = detect_patterns(data)
+            plot_url, data_with_derivative = plot_intervals(data, recovery_intervals, drop_intervals)
 
-            # Визуализируем результаты
-            plot_url = plot_intervals(data, recovery_intervals, drop_intervals)
-
-            # Передаем график, интервалы и данные в шаблон
-            return render_template('result.html', plot_url=plot_url, recovery=recovery_intervals, drop=drop_intervals, data=data.to_dict('records'))
+            return render_template('result.html', plot_url=plot_url, recovery=recovery_intervals, drop=drop_intervals, data=data_with_derivative)
     return render_template('index.html')
 
 def main():
