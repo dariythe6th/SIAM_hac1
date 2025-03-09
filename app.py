@@ -1,5 +1,4 @@
 import os
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -25,14 +24,16 @@ def load_data(file_path):
     data.columns = ["Время (часы)", "Давление (атм)"]
     return data
 
-def plot_intervals(data, recovery_intervals, drop_intervals):
+def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
+    """
+    Строит график с интервалами КВД, КПД и областями.
+    """
     plt.figure(figsize=(12, 6))
 
     # Построение давления
     plt.plot(data["Время (часы)"], data["Давление (атм)"], label="Давление", color='blue')
 
-    # Вычисление производной
-    derivative = np.gradient(data["Давление (атм)"])
+    # Построение производной
     plt.plot(data["Время (часы)"], derivative, label="Производная давления", color='red', linestyle='--')
 
     # Цвета для интервалов
@@ -74,16 +75,19 @@ def plot_intervals(data, recovery_intervals, drop_intervals):
     pc_end = time[-1]  # Конец графика
     plt.axvspan(pc_start, pc_end, color='pink', alpha=0.2, label="Влияние границ")
 
+    # Настройка шкалы на оси X (время)
+    plt.xticks(np.arange(0, max(data["Время (часы)"]) + 1, 1))  # Шаг 1 час
+
     # Настройка графика
     plt.xlabel("Время (часы)")
     plt.ylabel("Давление (атм) / Производная")
     plt.title("Выделение интервалов КВД, КПД и областей на графике")
-    plt.legend()
+    plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize='small', ncol=1)
     plt.grid()
 
     # Преобразование графика в base64
     img = io.BytesIO()
-    plt.savefig(img, format='png')
+    plt.savefig(img, format='png', bbox_inches='tight')
     plt.close()
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
@@ -99,8 +103,8 @@ def index():
         if 'use_test_data' in request.form:
             if os.path.exists(os.path.join("data", "well_data.csv")):
                 data = load_data(os.path.join("data", "well_data.csv"))
-                recovery_intervals, drop_intervals = detect_patterns(data)
-                plot_url, data_with_derivative = plot_intervals(data, recovery_intervals, drop_intervals)
+                recovery_intervals, drop_intervals, derivative = detect_patterns(data)
+                plot_url, data_with_derivative = plot_intervals(data, recovery_intervals, drop_intervals, derivative)
                 return render_template('result.html', plot_url=plot_url, recovery=recovery_intervals, drop=drop_intervals, data=data_with_derivative)
             else:
                 return "Файл data/well_data.csv не найден!"
@@ -116,8 +120,8 @@ def index():
             file.save(file_path)
 
             data = load_data(file_path)
-            recovery_intervals, drop_intervals = detect_patterns(data)
-            plot_url, data_with_derivative = plot_intervals(data, recovery_intervals, drop_intervals)
+            recovery_intervals, drop_intervals, derivative = detect_patterns(data)
+            plot_url, data_with_derivative = plot_intervals(data, recovery_intervals, drop_intervals, derivative)
 
             return render_template('result.html', plot_url=plot_url, recovery=recovery_intervals, drop=drop_intervals, data=data_with_derivative)
     return render_template('index.html')

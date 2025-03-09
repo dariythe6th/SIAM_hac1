@@ -2,26 +2,21 @@ import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
 
-
 def check_point_density(data, start_idx, end_idx, min_points=20):
     """
     Проверяет, что в интервале имеется достаточное количество точек.
-    Считает точки в первые 1 час (6 точек при 10-минутном интервале).
     """
     first_hour_end = start_idx + 6
     if first_hour_end > end_idx:
         return False
     return (end_idx - start_idx) >= min_points
 
-
 def check_for_noise(data, start_idx, end_idx, noise_threshold=10.0):
     """
     Проверяет наличие резких скачков давления в интервале.
-    Если разница между соседними точками превышает noise_threshold, интервал считается зашумленным.
     """
     pressure_diff = np.abs(np.diff(data["Давление (атм)"][start_idx:end_idx]))
     return np.any(pressure_diff > noise_threshold)
-
 
 def filter_intervals(intervals, min_duration):
     """
@@ -33,25 +28,10 @@ def filter_intervals(intervals, min_duration):
             filtered.append(interval)
     return filtered
 
-
 def detect_patterns(data, window_size=10, threshold=5.0, min_points=20, noise_threshold=10.0,
                     min_recovery_duration=4, min_drop_duration=6, low_density_threshold=10):
     """
     Обнаруживает интервалы повышения (КВД) и понижения (КПД) давления.
-
-    Параметры:
-      data: DataFrame с колонками 'Время (часы)' и 'Давление (атм)'.
-      window_size: Размер окна для сглаживания (фильтр Савицкого–Голея).
-      threshold: Порог для резкого изменения производной.
-      min_points: Минимальное количество точек в интервале.
-      noise_threshold: Порог для обнаружения шума в интервале.
-      min_recovery_duration: Минимальная длительность интервала повышения (КВД) в часах.
-      min_drop_duration: Минимальная длительность интервала понижения (КПД) в часах.
-      low_density_threshold: Порог, ниже которого считается, что данные имеют низкую дискретизацию.
-
-    Возвращает:
-      recovery_intervals: Список интервалов для КВД в виде [[начало, конец], ...].
-      drop_intervals: Список интервалов для КПД в виде [[начало, конец], ...].
     """
     # Извлекаем давление и время
     pressure = data["Давление (атм)"].values
@@ -95,4 +75,4 @@ def detect_patterns(data, window_size=10, threshold=5.0, min_points=20, noise_th
         recovery_intervals = [[start - 0.1, end + 0.1] for start, end in recovery_intervals]
         drop_intervals = [[start - 0.1, end + 0.1] for start, end in drop_intervals]
 
-    return recovery_intervals, drop_intervals
+    return recovery_intervals, drop_intervals, derivative
