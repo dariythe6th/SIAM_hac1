@@ -30,6 +30,9 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     """
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
+    # Добавляем производную в DataFrame
+    data["Производная (атм/час)"] = derivative
+
     # Построение давления на первой оси
     ax1.plot(data["Время (часы)"], data["Давление (атм)"], label="Давление", color='blue')
     ax1.set_xlabel("Время (часы)")
@@ -42,11 +45,6 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     ax2.set_ylabel("Производная (атм/час)", color='red')
     ax2.tick_params(axis='y', labelcolor='red')
 
-    # Создание второй оси для производной
-    ax2 = ax1.twinx()
-    ax2.plot(data["Время (часы)"], derivative, label="Производная давления", color='red', linestyle='--')
-    ax2.set_ylabel("Производная (атм/час)", color='red')
-    ax2.tick_params(axis='y', labelcolor='red')
     # Цвета для интервалов
     recovery_colors = ['green', 'blue', 'orange']
     drop_colors = ['red', 'purple', 'yellow']
@@ -100,6 +98,7 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
 
+    # Возвращаем обновленный DataFrame с производной
     return plot_url, data.to_dict('records')
 
 @app.route('/', methods=['GET', 'POST'])
