@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
 
-
 def calculate_mae(true_intervals, pred_intervals):
     """
     Вычисляет среднюю абсолютную ошибку (MAE) для интервалов.
@@ -61,8 +60,10 @@ def save_to_csv(final_results, output_file="submission.csv"):
     for result in final_results:
         final_submission.append({
             "file": result["file"],
-            "recovery": result["recovery_intervals"],
-            "drop": result["drop_intervals"]
+            "recovery": result.get("recovery_intervals", "[]"),  # Default empty list if key is missing
+            "drop": result.get("drop_intervals", "[]"),  # Default empty list if key is missing
+            "f1_recovery": result.get("f1_recovery", 0),  # Default 0 if key is missing
+            "f1_drop": result.get("f1_drop", 0)  # Default 0 if key is missing
         })
 
     final_submission_df = pd.DataFrame(final_submission)
@@ -74,30 +75,32 @@ def save_to_csv(final_results, output_file="submission.csv"):
 if __name__ == "__main__":
     final_results = []
 
-    data = pd.DataFrame({
-        "Время (часы)": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        "Давление (атм)": [100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150]
-    })
+    # Загружаем данные из well_data.csv
+    well_data = pd.read_csv("data/well_data.csv")
 
-    true_recovery = [[1, 3]]
-    true_drop = [[5, 7]]
-    recovery_intervals = [[1, 3]]
-    drop_intervals = [[5, 7]]
+    # Пример данных (это нужно заменить на настоящие интервалы, если они есть в данных)
+    true_recovery = [[1, 3]]  # Пример истинных интервалов для восстановления
+    true_drop = [[5, 7]]  # Пример истинных интервалов для сброса
 
-    f1_recovery = calculate_f1_score(true_recovery, recovery_intervals, data)
-    f1_drop = calculate_f1_score(true_drop, drop_intervals, data)
+    # Предсказанные интервалы (вам нужно будет их вычислить или получить из модели)
+    recovery_intervals = [[1, 3]]  # Пример предсказанных интервалов для восстановления
+    drop_intervals = [[5, 7]]  # Пример предсказанных интервалов для сброса
 
-    print("F1-score для КВД:", f1_recovery)
-    print("F1-score для КПД:", f1_drop)
+    # Вычисление F1-метрики для восстановления и сброса
+    f1_recovery = calculate_f1_score(true_recovery, recovery_intervals, well_data)
+    f1_drop = calculate_f1_score(true_drop, drop_intervals, well_data)
 
-    # Добавление в список финальных результатов
+    print("F1-score для восстановления:", f1_recovery)
+    print("F1-score для сброса:", f1_drop)
+
+    # Добавление результата для файла well_data.csv
     final_results.append({
-        "file": "example_file.csv",
-        "recovery_intervals": recovery_intervals,
-        "drop_intervals": drop_intervals,
+        "file": "well_data.csv",
+        "recovery_intervals": str(recovery_intervals),
+        "drop_intervals": str(drop_intervals),
         "f1_recovery": f1_recovery,
         "f1_drop": f1_drop
     })
 
-    # Сохранение результатов в файл
+    # Сохранение результатов в файл submission.csv
     save_to_csv(final_results)
