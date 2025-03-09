@@ -2,7 +2,7 @@
 FROM python:3.12
 
 # Устанавливаем рабочую директорию
-WORKDIR /SIAM_hac1-patch3
+WORKDIR /SIAM_hac1-main
 
 # Копируем зависимости
 COPY requirements.txt .
