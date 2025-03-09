@@ -28,14 +28,19 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     """
     Строит график с интервалами КВД, КПД и областями.
     """
-    plt.figure(figsize=(12, 6))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
 
-    # Построение давления
-    plt.plot(data["Время (часы)"], data["Давление (атм)"], label="Давление", color='blue')
+    # Построение давления на первой оси
+    ax1.plot(data["Время (часы)"], data["Давление (атм)"], label="Давление", color='blue')
+    ax1.set_xlabel("Время (часы)")
+    ax1.set_ylabel("Давление (атм)", color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
 
-    # Построение производной
-    plt.plot(data["Время (часы)"], derivative, label="Производная давления", color='red', linestyle='--')
-
+    # Создание второй оси для производной
+    ax2 = ax1.twinx()
+    ax2.plot(data["Время (часы)"], derivative, label="Производная давления", color='red', linestyle='--')
+    ax2.set_ylabel("Производная (атм/час)", color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
     # Цвета для интервалов
     recovery_colors = ['green', 'blue', 'orange']
     drop_colors = ['red', 'purple', 'yellow']
@@ -85,15 +90,11 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     plt.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize='small', ncol=1)
     plt.grid()
 
-    # Преобразование графика в base64
     img = io.BytesIO()
     plt.savefig(img, format='png', bbox_inches='tight')
     plt.close()
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
-
-    # Добавляем производную в данные для таблицы
-    data['Производная (атм/час)'] = derivative
 
     return plot_url, data.to_dict('records')
 
