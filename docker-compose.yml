@@ -1,0 +1,13 @@
+version: '3.12'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/SIAM_hac1-patch3
+      - ./uploads:/SIAM_hac1-patch3/uploads
+    environment:
+      - FLASK_ENV=development
+    command: python app.py

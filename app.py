@@ -42,6 +42,11 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     ax2.set_ylabel("Производная (атм/час)", color='red')
     ax2.tick_params(axis='y', labelcolor='red')
 
+    # Создание второй оси для производной
+    ax2 = ax1.twinx()
+    ax2.plot(data["Время (часы)"], derivative, label="Производная давления", color='red', linestyle='--')
+    ax2.set_ylabel("Производная (атм/час)", color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
     # Цвета для интервалов
     recovery_colors = ['green', 'blue', 'orange']
     drop_colors = ['red', 'purple', 'yellow']
@@ -94,9 +99,6 @@ def plot_intervals(data, recovery_intervals, drop_intervals, derivative):
     plt.close()
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
-
-    # Добавляем производную в данные для таблицы
-    data['Производная (атм/час)'] = derivative
 
     return plot_url, data.to_dict('records')
 
